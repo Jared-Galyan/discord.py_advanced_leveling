@@ -30,7 +30,7 @@ if __name__ == '__main__':
 async def on_ready():
     print(f'We have logged in as {bot.user}')
     print('Ready!')
-    return await bot.change_presence(activity=discord.Activity(type=1, name='Developing Update', url='https://twitch.tv/twitch'))
+    return await bot.change_presence(activity=discord.Activity(type=3, name='for Levels'))
 
 @bot.command(pass_context=True)
 async def reload(ctx, *, msg):

@@ -37,7 +37,7 @@ class Ranks(commands.Cog, name='Ranks'):
         await ctx.send('**Please insert the level required to obtain this role.**')
         level = await self.bot.wait_for('message', check=check)
         role = discord.utils.get(ctx.guild.roles, name=rolename.content)
-        main = sqlite3.connect('main.db')
+        main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         cursor.execute(f"SELECT role_id, level FROM ranks WHERE guild_id = '{ctx.guild.id}' and role_id = '{role.id}'")
         result = cursor.fetchone()
@@ -60,7 +60,7 @@ class Ranks(commands.Cog, name='Ranks'):
             return m.author == ctx.message.author and m.channel == ctx.message.channel
         rolename = await self.bot.wait_for('message', check=check)
         role = discord.utils.get(ctx.guild.roles, name=rolename.content)
-        main = sqlite3.connect('main.db')
+        main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         cursor.execute(f"SELECT role_id, level FROM ranks WHERE guild_id = '{ctx.guild.id}' and role_id = '{role.id}'")
         result = cursor.fetchone()
@@ -76,7 +76,7 @@ class Ranks(commands.Cog, name='Ranks'):
     @ranks.command(name='list')
     @checks.is_admin()
     async def _list(self, ctx):
-        main = sqlite3.connect('main.db')
+        main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         cursor.execute(f"SELECT role_id, level FROM ranks WHERE guild_id = '{ctx.guild.id}'")
         result = cursor.fetchall()
@@ -93,7 +93,7 @@ class TextLeveling(commands.Cog, name='Leveling'):
         self.bot = bot
 
     async def ranking(self, message):
-        main = sqlite3.connect('main.db')
+        main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         cursor.execute(f"SELECT role_id, level FROM ranks WHERE guild_id = '{message.guild.id}'")
         result = cursor.fetchall()
@@ -111,7 +111,7 @@ class TextLeveling(commands.Cog, name='Leveling'):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        main = sqlite3.connect('main.db')
+        main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         cursor.execute(f"SELECT enabled FROM glevel WHERE guild_id = '{member.guild.id}'")
         result = cursor.fetchone()
@@ -140,7 +140,7 @@ class TextLeveling(commands.Cog, name='Leveling'):
         if message.author.bot:
             return
         else:
-            main = sqlite3.connect('main.db')
+            main = sqlite3.connect('Leveling/main.db')
             cursor = main.cursor()
             cursor.execute(f"SELECT enabled FROM glevel WHERE guild_id = '{message.guild.id}'")
             result = cursor.fetchone()
@@ -157,7 +157,7 @@ class TextLeveling(commands.Cog, name='Leveling'):
                     val = (str(message.guild.id), str(message.author.id), datetime.datetime.utcnow())
                     cursor.execute(sql, val)
                     main.commit()
-                    TextLeveling().ranking(message) 
+                    TextLeveling(self).ranking(message) 
                 else:
                     cursor.execute(f"SELECT xp_time FROM tlevel WHERE guild_id = '{message.guild.id}' and user_id = '{message.author.id}'")
                     result2 = cursor.fetchone()
@@ -215,7 +215,7 @@ class TextLeveling(commands.Cog, name='Leveling'):
     @leveling.command(pass_context=True)
     async def enable(self, ctx):
         if ctx.message.author.guild_permissions.administrator or ctx.message.author.id ==173450781784145921:
-            main = sqlite3.connect('main.db')
+            main = sqlite3.connect('Leveling/main.db')
             cursor = main.cursor()
             cursor.execute(f"SELECT enabled FROM glevel WHERE guild_id = '{ctx.guild.id}'")
             result = cursor.fetchone()
@@ -237,7 +237,7 @@ class TextLeveling(commands.Cog, name='Leveling'):
     @leveling.command(pass_context=True)
     async def disable(self, ctx):
         if ctx.message.author.guild_permissions.administrator or ctx.message.author.id ==173450781784145921:
-            main = sqlite3.connect('main.db')
+            main = sqlite3.connect('Leveling/main.db')
             cursor = main.cursor()
             cursor.execute(f"SELECT enabled FROM glevel WHERE guild_id = '{ctx.guild.id}'")
             result = cursor.fetchone()
@@ -259,15 +259,15 @@ class TextLeveling(commands.Cog, name='Leveling'):
     @commands.command(pass_context=True)
     async def rank(self, ctx, user:discord.User=None):
         if user is None:
-            main = sqlite3.connect('main.db')
+            main = sqlite3.connect('Leveling/main.db')
             cursor = main.cursor()
             cursor.execute(f"SELECT exp, level FROM glevel WHERE guild_id = '{ctx.guild.id}' and user_id = '{ctx.message.author.id}'")
             result = cursor.fetchone()
             if result is None:
-                img = Image.open("rank.png") #Replace infoimgimg.png with your background image.
+                img = Image.open("Leveling/rank.png") #Replace infoimgimg.png with your background image.
                 draw = ImageDraw.Draw(img)
-                font = ImageFont.truetype("Quotable.otf", 35) #Make sure you insert a valid font from your folder.
-                font1 = ImageFont.truetype("Quotable.otf", 24) #Make sure you insert a valid font from your folder.
+                font = ImageFont.truetype("Leveling/Quotable.otf", 35) #Make sure you insert a valid font from your folder.
+                font1 = ImageFont.truetype("Leveling/Quotable.otf", 24) #Make sure you insert a valid font from your folder.
                 #    (x,y)::↓ ↓ ↓ (text)::↓ ↓     (r,g,b)::↓ ↓ ↓
                 async with aiohttp.ClientSession() as session:
                     async with session.get(str(ctx.author.avatar_url)) as response:
@@ -279,14 +279,14 @@ class TextLeveling(commands.Cog, name='Leveling'):
                 draw.text((242, 180), "0", (255, 255, 255), font=font)
                 draw.text((50,220), f"{ctx.author.name}", (255, 255, 255), font=font1)
                 draw.text((50,240), f"#{ctx.author.discriminator}", (255, 255, 255), font=font1)
-                img.save('infoimg2.png') #Change infoimg2.png if needed.
-                ffile = discord.File("infoimg2.png")
+                img.save('Leveling/infoimg2.png') #Change Leveling/infoimg2.png if needed.
+                ffile = discord.File("Leveling/infoimg2.png")
                 await ctx.send(file=ffile)
             elif result is not None:
-                img = Image.open("rank.png") #Replace infoimgimg.png with your background image.
+                img = Image.open("Leveling/rank.png") #Replace infoimgimg.png with your background image.
                 draw = ImageDraw.Draw(img)
-                font = ImageFont.truetype("Quotable.otf", 35) #Make sure you insert a valid font from your folder.
-                font1 = ImageFont.truetype("Quotable.otf", 24) #Make sure you insert a valid font from your folder.
+                font = ImageFont.truetype("Leveling/Quotable.otf", 35) #Make sure you insert a valid font from your folder.
+                font1 = ImageFont.truetype("Leveling/Quotable.otf", 24) #Make sure you insert a valid font from your folder.
                 #    (x,y)::↓ ↓ ↓ (text)::↓ ↓     (r,g,b)::↓ ↓ ↓
                 async with aiohttp.ClientSession() as session:
                     async with session.get(str(ctx.author.avatar_url)) as response:
@@ -298,21 +298,21 @@ class TextLeveling(commands.Cog, name='Leveling'):
                 draw.text((242, 180), f"{str(result[0])}", (255, 255, 255), font=font)
                 draw.text((50,220), f"{ctx.author.name}", (255, 255, 255), font=font1)
                 draw.text((50,240), f"#{ctx.author.discriminator}", (255, 255, 255), font=font1)
-                img.save('infoimg2.png') #Change infoimg2.png if needed.
-                ffile = discord.File("infoimg2.png")
+                img.save('Leveling/infoimg2.png') #Change Leveling/infoimg2.png if needed.
+                ffile = discord.File("Leveling/infoimg2.png")
                 await ctx.send(file=ffile)
             cursor.close()
             main.close()
         else:
-            main = sqlite3.connect('main.db')
+            main = sqlite3.connect('Leveling/main.db')
             cursor = main.cursor()
             cursor.execute(f"SELECT exp, level FROM glevel WHERE guild_id = '{ctx.guild.id}' and user_id = '{user.id}'")
             result = cursor.fetchone()
             if result is None:
-                img = Image.open("rank.png") #Replace infoimgimg.png with your background image.
+                img = Image.open("Leveling/rank.png") #Replace infoimgimg.png with your background image.
                 draw = ImageDraw.Draw(img)
-                font = ImageFont.truetype("Quotable.otf", 35) #Make sure you insert a valid font from your folder.
-                font1 = ImageFont.truetype("Quotable.otf", 24) #Make sure you insert a valid font from your folder.
+                font = ImageFont.truetype("Leveling/Quotable.otf", 35) #Make sure you insert a valid font from your folder.
+                font1 = ImageFont.truetype("Leveling/Quotable.otf", 24) #Make sure you insert a valid font from your folder.
                 #    (x,y)::↓ ↓ ↓ (text)::↓ ↓     (r,g,b)::↓ ↓ ↓
                 async with aiohttp.ClientSession() as session:
                     async with session.get(str(ctx.author.avatar_url)) as response:
@@ -324,14 +324,14 @@ class TextLeveling(commands.Cog, name='Leveling'):
                 draw.text((242, 180), "0", (255, 255, 255), font=font)
                 draw.text((50,220), f"{user.name}", (255, 255, 255), font=font1)
                 draw.text((50,240), f"#{user.discriminator}", (255, 255, 255), font=font1)
-                img.save('infoimg2.png') #Change infoimg2.png if needed.
-                ffile = discord.File("infoimg2.png")
+                img.save('Leveling/infoimg2.png') #Change Leveling/infoimg2.png if needed.
+                ffile = discord.File("Leveling/infoimg2.png")
                 await ctx.send(file=ffile)
             elif result is not None:
-                img = Image.open("rank.png") #Replace infoimgimg.png with your background image.
+                img = Image.open("Leveling/rank.png") #Replace infoimgimg.png with your background image.
                 draw = ImageDraw.Draw(img)
-                font = ImageFont.truetype("Quotable.otf", 35) #Make sure you insert a valid font from your folder.
-                font1 = ImageFont.truetype("Quotable.otf", 24) #Make sure you insert a valid font from your folder.
+                font = ImageFont.truetype("Leveling/Quotable.otf", 35) #Make sure you insert a valid font from your folder.
+                font1 = ImageFont.truetype("Leveling/Quotable.otf", 24) #Make sure you insert a valid font from your folder.
                 #    (x,y)::↓ ↓ ↓ (text)::↓ ↓     (r,g,b)::↓ ↓ ↓
                 async with aiohttp.ClientSession() as session:
                     async with session.get(str(ctx.author.avatar_url)) as response:
@@ -343,15 +343,15 @@ class TextLeveling(commands.Cog, name='Leveling'):
                 draw.text((242, 180), f"{str(result[0])}", (255, 255, 255), font=font)
                 draw.text((50,220), f"{user.name}", (255, 255, 255), font=font1)
                 draw.text((50,240), f"#{user.discriminator}", (255, 255, 255), font=font1)
-                img.save('infoimg2.png') #Change infoimg2.png if needed.
-                ffile = discord.File("infoimg2.png")
+                img.save('Leveling/infoimg2.png') #Change Leveling/infoimg2.png if needed.
+                ffile = discord.File("Leveling/infoimg2.png")
                 await ctx.send(file=ffile)
             cursor.close()
             main.close()
 
     @commands.command(pass_context=True)
     async def leaderboard(self, ctx):
-        main = sqlite3.connect('main.db')
+        main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         cursor.execute(f"SELECT user_id, exp, level FROM glevel WHERE guild_id = '{ctx.guild.id}' ORDER BY level DESC, exp DESC")
         
@@ -382,9 +382,25 @@ class VoiceLeveling(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def ranking(self, member, user):
+        main = sqlite3.connect('Leveling/main.db')
+        cursor = main.cursor()
+        cursor.execute(f"SELECT role_id, level FROM ranks WHERE guild_id = '{member.guild.id}'")
+        result = cursor.fetchall()
+        cursor.execute(f"SELECT user_id, exp, level FROM glevel WHERE guild_id = '{member.guild.id}' and user_id = '{user.id}'")
+        result1 = cursor.fetchone()
+        lvl = int(result1[2])
+        for result in result:
+            role = member.guild.get_role(int(result[0]))
+            try:
+                if lvl >= int(result[1]):
+                    await user.add_roles(role)
+            except:
+                return
+
     async def start_time(self, member, before, after):
         if sum(1 for m in after.channel.members if not m.bot) >= 2:
-            main = sqlite3.connect('main.db')
+            main = sqlite3.connect('Leveling/main.db')
             cursor = main.cursor()
             cursor.execute(f"SELECT channel_id, user_id FROM vlevel WHERE guild_id = '{member.guild.id}' and channel_id = '{after.channel.id}'")
             result = cursor.fetchall()
@@ -402,7 +418,7 @@ class VoiceLeveling(commands.Cog):
                         cursor.close()
                         main.close()
                         await VoiceLeveling(self).stop_time(member,before, after)
-                        main = sqlite3.connect('main.db')
+                        main = sqlite3.connect('Leveling/main.db')
                         cursor = main.cursor()
                         sql = ("UPDATE vlevel SET start_time = ? WHERE guild_id = ? and user_id = ?")
                         val = (datetime.datetime.utcnow(), str(member.guild.id), str(user.id))
@@ -416,7 +432,7 @@ class VoiceLeveling(commands.Cog):
             return
 
     async def stop_time(self, member, before, after):
-        main = sqlite3.connect('main.db')
+        main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         if before.channel is None:
             cursor.execute(f"SELECT channel_id, user_id FROM vlevel WHERE guild_id = '{member.guild.id}' and channel_id = '{after.channel.id}'")
@@ -426,7 +442,11 @@ class VoiceLeveling(commands.Cog):
             cursor.execute(f"SELECT channel_id, user_id FROM vlevel WHERE guild_id = '{member.guild.id}' and channel_id = '{before.channel.id}'")
             result = cursor.fetchall()
             members = before.channel.members
+        cursor.close()
+        main.close()
         for result in result:
+            main = sqlite3.connect('Leveling/main.db')
+            cursor = main.cursor()
             user = member.guild.get_member(int(result[1]))
             if user not in members:
                 cursor.execute(f"SELECT start_time FROM vlevel WHERE guild_id = '{member.guild.id}' and user_id = '{user.id}'")
@@ -467,6 +487,9 @@ class VoiceLeveling(commands.Cog):
                 val = ('none', str(member.guild.id), str(user.id))
                 cursor.execute(sql, val)
                 main.commit()
+                cursor.close()
+                main.close()
+                VoiceLeveling(self).ranking(member, user)
             elif user in members:
                 if sum(1 for m in members if not m.bot) >= 2:
                     return
@@ -475,14 +498,15 @@ class VoiceLeveling(commands.Cog):
                     val = ('none', str(member.guild.id), str(user.id))
                     cursor.execute(sql, val)
                     main.commit()
+                    cursor.close()
+                    main.close()
             else:
                 continue
-        cursor.close()
-        main.close()
+        
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        main = sqlite3.connect('main.db')
+        main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         cursor.execute(f"SELECT enabled FROM glevel WHERE guild_id = '{member.guild.id}'")
         result = cursor.fetchone()
