@@ -334,7 +334,7 @@ class TextLeveling(commands.Cog, name='Leveling'):
                 font1 = ImageFont.truetype("Leveling/Quotable.otf", 24) #Make sure you insert a valid font from your folder.
                 #    (x,y)::↓ ↓ ↓ (text)::↓ ↓     (r,g,b)::↓ ↓ ↓
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(str(ctx.author.avatar_url)) as response:
+                    async with session.get(str(user.avatar_url)) as response:
                         image = await response.read()
                 icon = Image.open(BytesIO(image)).convert("RGBA")
                 img.paste(icon.resize((156, 156)), (50, 60))
