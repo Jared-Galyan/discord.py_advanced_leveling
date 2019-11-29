@@ -354,26 +354,26 @@ class TextLeveling(commands.Cog, name='Leveling'):
         main = sqlite3.connect('Leveling/main.db')
         cursor = main.cursor()
         cursor.execute(f"SELECT user_id, exp, level FROM glevel WHERE guild_id = '{ctx.guild.id}' ORDER BY level DESC, exp DESC")
-        
-        
+        result = cursor.fetchall()
+        print(result)
         desc = ''
         v = 1
-        for result in cursor.fetchall():
+        for result in result:
             if v > 5:
                 break
 
             if result[0] == None:
                 continue
-
-            user = self.bot.get_user(int(result[0]))
-            exp = result[2]
             
-            desc += f'**{str(user)}** *(level {exp})*\n'
+            user = self.bot.get_user(int(result[0]))
+            lvl = result[2]
+            print(f'{user} - {lvl}')
+            desc += f'**{str(user)}** *(level {lvl})*\n'
             v += 1
             
-        embed = discord.Embed(color=0x0080ff)
-        embed.add_field(name='Leaderboard Top 5', value=desc)
-        embed.set_thumbnail(url='https://i.imgur.com/yckGbhV.png')
+        embed = discord.Embed(color=0xff003d)
+        embed.add_field(name='**Leaderboard Top 5**', value=desc)
+        embed.set_thumbnail(url='https://images-ext-2.discordapp.net/external/gf8sjTwr0DCWMKpYuNd8yXlzvywht43aRWh6QjnMPw0/%3Fsize%3D128/https/cdn.discordapp.com/avatars/648362865048420373/bf8b2c1ed038e8d19f8863db3fba526c.png')
         embed.set_footer(text=f'{ctx.message.guild}')
         embed.timestamp = datetime.datetime.utcnow()
         await ctx.send(embed=embed)
