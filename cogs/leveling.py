@@ -179,8 +179,6 @@ class TextLeveling(commands.Cog, name='Leveling'):
                         lvl_start = int(result1[2])
                         
                         xp_end = math.floor(5 * (lvl_start ^ 2) + 50 * lvl_start + 100)
-                        print(xp_end)
-                        print(xp_start)
                         if xp_end < xp_start:               
                             await message.channel.send(f'{message.author.mention} has leveled up to level {lvl_start + 1}.')
                             sql = ("UPDATE glevel SET level = ? WHERE guild_id = ? and user_id = ?")
@@ -355,7 +353,6 @@ class TextLeveling(commands.Cog, name='Leveling'):
         cursor = main.cursor()
         cursor.execute(f"SELECT user_id, exp, level FROM glevel WHERE guild_id = '{ctx.guild.id}' ORDER BY level DESC, exp DESC")
         result = cursor.fetchall()
-        print(result)
         desc = ''
         v = 1
         for result in result:
@@ -367,7 +364,6 @@ class TextLeveling(commands.Cog, name='Leveling'):
             
             user = self.bot.get_user(int(result[0]))
             lvl = result[2]
-            print(f'{user} - {lvl}')
             desc += f'**{str(user)}** *(level {lvl})*\n'
             v += 1
             
@@ -454,14 +450,10 @@ class VoiceLeveling(commands.Cog):
                 datetimeFormat = '%Y-%m-%d %H:%M:%S.%f'
                 time_diff = datetime.datetime.strptime(str(datetime.datetime.utcnow()), datetimeFormat)\
                     - datetime.datetime.strptime(str(result2[0]), datetimeFormat)
-                print(time_diff)
-                print(time_diff.seconds)
                 xp = 0
                 minutes = int(time_diff.seconds) / 60
-                print(minutes)
                 for i in range(round(minutes)):
                     xp += int(random.randint(15,26))
-                print(xp)
                 cursor.execute(f"SELECT user_id, exp, level FROM glevel WHERE guild_id = '{member.guild.id}' and user_id = '{user.id}'")
                 result1 = cursor.fetchone()
                 exp = int(result1[1])
@@ -526,7 +518,6 @@ class VoiceLeveling(commands.Cog):
                     cursor.execute(sql, val)
                     main.commit()
                     now = datetime.datetime.utcnow()
-                    print(now)
                     sql = ("INSERT INTO vlevel(guild_id, user_id, join_time, channel_id) VALUES(?,?,?,?)")
                     val = (str(member.guild.id), str(member.id), now, str(after.channel.id))
                     cursor.execute(sql, val)
@@ -539,7 +530,6 @@ class VoiceLeveling(commands.Cog):
                     result = cursor.fetchone()
                     if result is None:
                         now = datetime.datetime.utcnow()
-                        print(now)
                         sql = ("INSERT INTO vlevel(guild_id, user_id, join_time, channel_id) VALUES(?,?,?,?)")
                         val = (str(member.guild.id), str(member.id), now, str(after.channel.id))
                         cursor.execute(sql, val)
@@ -548,7 +538,6 @@ class VoiceLeveling(commands.Cog):
                         main.close()
                     else:
                         now = datetime.datetime.utcnow()
-                        print(now)
                         sql = ("UPDATE vlevel SET join_time = ? and channel_id = ? WHERE guild_id = ? and user_id = ?")
                         val = (now, str(after.channel.id), str(member.guild.id), str(member.id))
                         cursor.execute(sql, val)
