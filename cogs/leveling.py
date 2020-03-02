@@ -195,65 +195,6 @@ class TextLeveling(commands.Cog, name='Leveling'):
             else:
                 return
     
-    @commands.group(pass_context=True, invoke_without_command=True)
-    async def leveling(self, ctx):
-        info = """
-    **Welcome the the Leveling Setup**
-
-    `leveling enable` - Enables the leveling system in the server
-    `leveling disable` - Disables the leveling system in the server"""
-
-        embed = discord.Embed(color=0x555555)
-        embed.add_field(name='Commands Module', value=info)
-        embed.set_footer(text='Made by Jared#5984', icon_url=self.bot.user.avatar_url)
-        embed.set_author(name='Garbage Commands Module', icon_url=self.bot.user.avatar_url)
-        embed.timestamp = datetime.datetime.utcnow()
-        await ctx.send(embed=embed)
-    
-    @leveling.command(pass_context=True)
-    async def enable(self, ctx):
-        if ctx.message.author.guild_permissions.administrator or ctx.message.author.id ==173450781784145921:
-            main = sqlite3.connect('Leveling/main.db')
-            cursor = main.cursor()
-            cursor.execute(f"SELECT enabled FROM glevel WHERE guild_id = '{ctx.guild.id}'")
-            result = cursor.fetchone()
-            if result is None:
-                sql = ("INSERT INTO glevel(guild_id, enabled) VALUES(?,?)")
-                val = (str(ctx.guild.id), 'enabled')
-                cursor.execute(sql, val)
-                main.commit()
-                await ctx.send('Levels has been enabled')
-            elif str(result[0]) == 'disabled':
-                sql = ("UPDATE glevel SET enabled = ? WHERE guild_id = ?")
-                val = ('enabled', str(ctx.guild.id))
-                cursor.execute(sql, val)
-                main.commit()
-                await ctx.send('Levels has been enabled')
-        else:
-            await ctx.send('You do not have permission for this command.')
-    
-    @leveling.command(pass_context=True)
-    async def disable(self, ctx):
-        if ctx.message.author.guild_permissions.administrator or ctx.message.author.id ==173450781784145921:
-            main = sqlite3.connect('Leveling/main.db')
-            cursor = main.cursor()
-            cursor.execute(f"SELECT enabled FROM glevel WHERE guild_id = '{ctx.guild.id}'")
-            result = cursor.fetchone()
-            if result is None:
-                sql = ("INSERT INTO glevel(guild_id, enabled) VALUES(?,?)")
-                val = (str(ctx.guild.id), 'disabled')
-                cursor.execute(sql, val)
-                main.commit()
-                await ctx.send('Levels has been disabled')
-            elif str(result[0]) == 'disabled':
-                sql = ("UPDATE glevel SET enabled = ? WHERE guild_id = ?")
-                val = ('disabled', str(ctx.guild.id))
-                cursor.execute(sql, val)
-                main.commit()
-                await ctx.send('Levels has been disabled')
-        else:
-            await ctx.send('You do not have permission for this command.')
-    
     @commands.command(pass_context=True)
     async def rank(self, ctx, user:discord.User=None):
         if user is None:
