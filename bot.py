@@ -37,7 +37,7 @@ async def on_ready():
 async def on_guild_join(guild):
     main = sqlite3.connect('Leveling/main.db')
     cursor = main.cursor()
-    cursor.execute(f"SELECT enabled FROM glevel WHERE guild_id = '{guild.id}'")
+    cursor.execute("SELECT enabled FROM glevel WHERE guild_id = ?", (str(guild.id),))
     result = cursor.fetchone()
     if result is None:
         sql = ("INSERT INTO glevel(guild_id, enabled) VALUES(?,?)")
